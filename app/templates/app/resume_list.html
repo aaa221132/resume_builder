@@ -1,0 +1,19 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+<h1>Мої резюме</h1>
+
+<a href="{% url 'create_resume' %}">➕ Створити резюме</a>
+
+<ul>
+    {% for resume in resumes %}
+        <li>
+            <a href="{% url 'resume_detail' resume.id %}">
+                {{ resume.full_name }} — {{ resume.profession }}
+            </a>
+        </li>
+    {% empty %}
+        <li>Резюме ще немає</li>
+    {% endfor %}
+</ul>
+{% endblock %}
