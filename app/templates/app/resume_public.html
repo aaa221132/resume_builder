@@ -1,0 +1,26 @@
+{% extends 'app/base.html' %}
+{% block content %}
+
+<div class="text-center mb-4">
+    <h3 class="fw-bold">Resume Builder</h3>
+    <p class="text-muted">
+        Створюйте професійні резюме швидко та зручно
+    </p>
+
+    <a href="{% url 'auth' %}" class="btn btn-primary mt-2">
+        🔐 Увійти або Зареєструватися
+    </a>
+</div>
+
+<div class="row g-4 mt-4">
+{% for resume in resumes %}
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h6>{{ resume.full_name }}</h6>
+            <small class="text-muted">{{ resume.profession }}</small>
+        </div>
+    </div>
+{% endfor %}
+</div>
+
+{% endblock %}

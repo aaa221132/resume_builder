@@ -1,0 +1,40 @@
+{% extends 'app/base.html' %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card p-4 shadow">
+
+            <h4 class="mb-3 fw-bold text-center">Реєстрація</h4>
+
+            {% for message in messages %}
+                <div class="alert alert-danger">{{ message }}</div>
+            {% endfor %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <input class="form-control mb-3"
+                       name="username"
+                       placeholder="Логін">
+
+                <input class="form-control mb-3"
+                       type="password"
+                       name="password1"
+                       placeholder="Пароль">
+
+                <input class="form-control mb-3"
+                       type="password"
+                       name="password2"
+                       placeholder="Повторіть пароль">
+
+                <button class="btn btn-success w-100">
+                    Зареєструватися
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

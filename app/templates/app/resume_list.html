@@ -1,19 +1,96 @@
 {% extends 'app/base.html' %}
-
 {% block content %}
-<h1>Мої резюме</h1>
 
-<a href="{% url 'create_resume' %}">➕ Створити резюме</a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-semibold">Мої резюме</h4>
 
-<ul>
-    {% for resume in resumes %}
-        <li>
-            <a href="{% url 'resume_detail' resume.id %}">
-                {{ resume.full_name }} — {{ resume.profession }}
+    <a href="{% url 'create_resume' %}" class="btn btn-primary">
+        ➕ Створити
+    </a>
+</div>
+
+<div class="row g-4">
+{% for resume in resumes %}
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+
+                <div>
+                    <h5 class="mb-1">{{ resume.full_name }}</h5>
+                    <small class="text-muted">{{ resume.profession }}</small>
+                </div>
+
+                <div class="mt-3">
+                    <a href="{% url 'resume_detail' resume.id %}" class="btn btn-outline-primary btn-sm">
+                        Відкрити
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% empty %}
+    <p class="text-muted">Резюме ще немає</p>
+{% endfor %}
+</div>
+
+
+
+<form method="get" class="row g-2 mb-4">
+
+    <div class="col-md-6">
+        <input class="form-control"
+               name="q"
+               value="{{ search }}"
+               placeholder="Пошук по імені або професії">
+    </div>
+
+    <div class="col-md-3">
+        <select class="form-select"
+                name="per_page"
+                onchange="this.form.submit()">
+
+            {% for n in "468"|make_list %}
+                {% if n != "1" %}
+                <option value="{{ n }}"
+                        {% if per_page == n|add:"0" %}selected{% endif %}>
+                    {{ n }} на сторінці
+                </option>
+                {% endif %}
+            {% endfor %}
+
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <button class="btn btn-outline-secondary w-100">
+            🔍 Пошук
+        </button>
+    </div>
+
+</form>
+<div class="d-flex justify-content-between align-items-center mt-4">
+
+    <small class="text-muted">
+        Сторінка {{ resumes.number }} з {{ resumes.paginator.num_pages }}
+    </small>
+
+    <div>
+        {% if resumes.has_previous %}
+            <a class="btn btn-outline-secondary btn-sm"
+               href="?page={{ resumes.previous_page_number }}&q={{ search }}&per_page={{ per_page }}">
+                ←
             </a>
-        </li>
-    {% empty %}
-        <li>Резюме ще немає</li>
-    {% endfor %}
-</ul>
+        {% endif %}
+
+        {% if resumes.has_next %}
+            <a class="btn btn-outline-secondary btn-sm"
+               href="?page={{ resumes.next_page_number }}&q={{ search }}&per_page={{ per_page }}">
+                →
+            </a>
+        {% endif %}
+    </div>
+
+</div>
+
 {% endblock %}

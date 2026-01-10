@@ -1,77 +1,169 @@
 {% extends 'app/base.html' %}
-
 {% block content %}
-<h1>{{ resume.full_name }}</h1>
-<h3>{{ resume.profession }}</h3>
 
-<p>{{ resume.summary }}</p>
+<a href="{% url 'resume_list' %}" class="btn btn-secondary mb-4">
+    ← Назад до списку
+</a>
 
-<hr>
+<div class="card p-4 shadow">
 
-<h2>Навички</h2>
-<ul>
-    {% for skill in resume.skills.all %}
-        <li>{{ skill.name }}</li>
-    {% empty %}
-        <li>Навичок ще немає</li>
-    {% endfor %}
-</ul>
+    <h4 class="fw-bold mb-1">
+        Назва резюме
+    </h4>
+    <p class="text-muted small mb-3">
+        Вкажіть імʼя та посаду, під якою ви хочете представити себе роботодавцю
+    </p>
 
-<form method="post" action="{% url 'add_skill' resume.id %}">
-    {% csrf_token %}
-    <input type="text" name="name" placeholder="Навичка">
-    <button type="submit">Додати навичку</button>
-</form>
+    <form method="post">
+        {% csrf_token %}
 
-<hr>
+        <label class="form-label fw-semibold">ПІБ</label>
+        <input class="form-control mb-3"
+               name="full_name"
+               placeholder="Наприклад: Іван Петренко"
+               value="{{ resume.full_name }}">
 
-<h2>Досвід роботи</h2>
-<ul>
+        <label class="form-label fw-semibold">Бажана посада</label>
+        <input class="form-control mb-3"
+               name="profession"
+               placeholder="Наприклад: Frontend-розробник"
+               value="{{ resume.profession }}">
+
+        <label class="form-label fw-semibold">Коротко про себе</label>
+        <textarea class="form-control mb-4"
+                  name="summary"
+                  rows="4"
+                  placeholder="Кілька речень про ваш досвід, сильні сторони та карʼєрні цілі">{{ resume.summary }}</textarea>
+
+        <button class="btn btn-success mb-4">
+            💾 Зберегти основну інформацію
+        </button>
+    </form>
+
+    <hr>
+
+    <h5 class="fw-semibold mt-3">
+        Навички
+    </h5>
+    <p class="text-muted small mb-2">
+        Додайте ключові навички, які характеризують вас як спеціаліста
+    </p>
+
+    <ul class="list-group mb-3">
+        {% for skill in resume.skills.all %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ skill.name }}
+                <a href="{% url 'delete_skill' skill.id %}" class="btn btn-sm btn-outline-danger">✕</a>
+            </li>
+        {% empty %}
+            <li class="list-group-item text-muted">Навички ще не додані</li>
+        {% endfor %}
+    </ul>
+
+    <form method="post" action="{% url 'add_skill' resume.id %}" class="d-flex gap-2 mb-4">
+        {% csrf_token %}
+        <input class="form-control"
+               name="name"
+               placeholder="Наприклад: Python, Django, SQL">
+        <button class="btn btn-outline-success">
+            ➕ Додати
+        </button>
+    </form>
+
+    <hr>
+
+    <h5 class="fw-semibold mt-3">
+        Досвід роботи
+    </h5>
+    <p class="text-muted small mb-3">
+        Вкажіть місця роботи, посади та період зайнятості
+    </p>
+
     {% for exp in resume.experiences.all %}
-        <li>
-            <strong>{{ exp.company }}</strong> — {{ exp.position }}
-            ({{ exp.start_date }} – {{ exp.end_date|default:"до теперішнього часу" }})
-            <br>
-            {{ exp.description }}
-        </li>
+        <div class="border rounded p-3 mb-2">
+            <strong>{{ exp.company }}</strong> — {{ exp.position }}<br>
+            <small class="text-muted">
+                {{ exp.start_date }} – {{ exp.end_date|default:"дотепер" }}
+            </small>
+            <div class="mt-1">
+                {{ exp.description }}
+            </div>
+        </div>
     {% empty %}
-        <li>Досвіду ще немає</li>
+        <p class="text-muted">Досвід роботи ще не додано</p>
     {% endfor %}
-</ul>
 
-<form method="post" action="{% url 'add_experience' resume.id %}">
-    {% csrf_token %}
-    <input name="company" placeholder="Компанія">
-    <input name="position" placeholder="Посада">
-    <input type="date" name="start_date">
-    <input type="date" name="end_date">
-    <textarea name="description" placeholder="Опис"></textarea>
-    <button type="submit">Додати досвід</button>
-</form>
+    <form method="post" action="{% url 'add_experience' resume.id %}" class="mb-4">
+        {% csrf_token %}
 
-<hr>
+        <input class="form-control mb-2"
+               name="company"
+               placeholder="Компанія (наприклад: Google)">
 
-<h2>Освіта</h2>
-<ul>
+        <input class="form-control mb-2"
+               name="position"
+               placeholder="Посада (наприклад: Software Engineer)">
+
+        <label class="small text-muted">Період роботи</label>
+        <div class="d-flex gap-2 mb-2">
+            <input class="form-control" type="date" name="start_date">
+            <input class="form-control" type="date" name="end_date">
+        </div>
+
+        <textarea class="form-control mb-2"
+                  name="description"
+                  placeholder="Коротко опишіть ваші обовʼязки та досягнення"></textarea>
+
+        <button class="btn btn-outline-success">
+            ➕ Додати досвід
+        </button>
+    </form>
+
+    <hr>
+
+    <h5 class="fw-semibold mt-3">
+        Освіта
+    </h5>
+    <p class="text-muted small mb-3">
+        Навчальні заклади, спеціальність та роки навчання
+    </p>
+
     {% for edu in resume.education.all %}
-        <li>
-            {{ edu.institution }} — {{ edu.degree }}
-            ({{ edu.start_year }} – {{ edu.end_year|default:"до теперішнього часу" }})
-        </li>
+        <div class="border rounded p-3 mb-2">
+            <strong>{{ edu.institution }}</strong> — {{ edu.degree }}<br>
+            <small class="text-muted">
+                {{ edu.start_year }} – {{ edu.end_year|default:"дотепер" }}
+            </small>
+        </div>
     {% empty %}
-        <li>Освіти ще немає</li>
+        <p class="text-muted">Освіта ще не додана</p>
     {% endfor %}
-</ul>
 
-<form method="post" action="{% url 'add_education' resume.id %}">
-    {% csrf_token %}
-    <input name="institution" placeholder="Навчальний заклад">
-    <input name="degree" placeholder="Ступінь / спеціальність">
-    <input name="start_year" placeholder="Рік початку">
-    <input name="end_year" placeholder="Рік закінчення">
-    <button type="submit">Додати освіту</button>
-</form>
+    <form method="post" action="{% url 'add_education' resume.id %}">
+        {% csrf_token %}
 
-<br>
-<a href="{% url 'resume_list' %}">← Назад до списку</a>
+        <input class="form-control mb-2"
+               name="institution"
+               placeholder="Навчальний заклад">
+
+        <input class="form-control mb-2"
+               name="degree"
+               placeholder="Спеціальність або ступінь">
+
+        <div class="d-flex gap-2 mb-3">
+            <input class="form-control"
+                   name="start_year"
+                   placeholder="Рік початку">
+            <input class="form-control"
+                   name="end_year"
+                   placeholder="Рік закінчення (або порожньо)">
+        </div>
+
+        <button class="btn btn-outline-success">
+            ➕ Додати освіту
+        </button>
+    </form>
+
+</div>
+
 {% endblock %}
