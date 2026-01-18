@@ -61,6 +61,7 @@
         <span class="navbar-brand">Resume Builder</span>
 
         <div class="d-flex align-items-center gap-2">
+
             {% if user.is_authenticated %}
                 <span class="text-light small">
                     👤 {{ user.username }}
@@ -68,7 +69,8 @@
                 <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-light">
                     Вийти
                 </a>
-            {% else %}
+
+            {% elif request.resolver_match.url_name != 'home' %}
                 <a href="{% url 'login' %}" class="btn btn-sm btn-outline-light">
                     Увійти
                 </a>
@@ -85,6 +87,7 @@
 </nav>
 
 
+
 <div id="themeWrapper" class="theme-wrapper light">
     <div class="container py-4 mb-5">
         {% block content %}{% endblock %}
@@ -96,7 +99,6 @@
     const btn = document.getElementById('themeToggle');
     const body = document.body;
 
-    // загрузка темы
     const savedTheme = localStorage.getItem('theme') || 'light';
 
     wrapper.className = 'theme-wrapper ' + savedTheme;

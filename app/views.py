@@ -1,22 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from .models import Resume, Skill, Experience, Education
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
+
+from .models import Resume, Skill, Experience, Education
+
+
+def home(request):
+    return render(request, 'app/home.html')
 
 
 
 @login_required
 def resume_list(request):
-    if not request.user.is_authenticated:
-        resumes = Resume.objects.all().order_by('-id')[:6]
-
-        return render(request, 'app/resume_public.html', {
-            'resumes': resumes
-        })
-
     search = request.GET.get('q', '')
     per_page = request.GET.get('per_page', '4')
 
@@ -57,25 +55,29 @@ def create_resume(request):
     )
     return redirect('resume_detail', resume.id)
 
+
 @login_required
 def resume_detail(request, resume_id):
     resume = get_object_or_404(Resume, id=resume_id, user=request.user)
+
     if request.method == 'POST':
         resume.full_name = request.POST.get('full_name')
         resume.profession = request.POST.get('profession')
         resume.summary = request.POST.get('summary')
         resume.save()
+
     return render(request, 'app/resume_detail.html', {'resume': resume})
+
 
 @login_required
 def delete_resume(request, resume_id):
     resume = get_object_or_404(Resume, id=resume_id, user=request.user)
-
     if request.method == 'POST':
         resume.delete()
         return redirect('resume_list')
-
     return render(request, 'app/delete_resume.html', {'resume': resume})
+
+
 
 @login_required
 def add_skill(request, resume_id):
@@ -85,12 +87,15 @@ def add_skill(request, resume_id):
     )
     return redirect('resume_detail', resume_id)
 
+
 @login_required
 def delete_skill(request, skill_id):
     skill = get_object_or_404(Skill, id=skill_id)
     rid = skill.resume.id
     skill.delete()
     return redirect('resume_detail', rid)
+
+
 
 @login_required
 def add_experience(request, resume_id):
@@ -104,12 +109,14 @@ def add_experience(request, resume_id):
     )
     return redirect('resume_detail', resume_id)
 
+
 @login_required
 def delete_experience(request, exp_id):
     exp = get_object_or_404(Experience, id=exp_id)
     rid = exp.resume.id
     exp.delete()
     return redirect('resume_detail', rid)
+
 
 @login_required
 def add_education(request, resume_id):
@@ -122,6 +129,7 @@ def add_education(request, resume_id):
     )
     return redirect('resume_detail', resume_id)
 
+
 @login_required
 def delete_education(request, edu_id):
     edu = get_object_or_404(Education, id=edu_id)
@@ -129,7 +137,11 @@ def delete_education(request, edu_id):
     edu.delete()
     return redirect('resume_detail', rid)
 
+
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('/resumes/')
+
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -137,13 +149,19 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
-            return redirect('resume_list')
+            return redirect('/resumes/')
         else:
             messages.error(request, 'Невірний логін або пароль')
 
     return render(request, 'app/login.html')
 
+
+
 def register_view(request):
+    if request.user.is_authenticated:
+        # Уже залогинен → редирект на свои резюме
+        return redirect('/resumes/')
+
     if request.method == 'POST':
         username = request.POST.get('username')
         password1 = request.POST.get('password1')
@@ -156,12 +174,12 @@ def register_view(request):
         else:
             user = User.objects.create_user(username=username, password=password1)
             login(request, user)
-            return redirect('resume_list')
+            return redirect('/resumes/')
 
     return render(request, 'app/register.html')
 
+
+
 def logout_view(request):
     logout(request)
-    return redirect('login')
-
-
+    return redirect('home')
